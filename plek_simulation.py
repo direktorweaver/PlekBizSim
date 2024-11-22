@@ -2,7 +2,6 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-import calendar
 
 # Set page configuration
 st.set_page_config(
@@ -48,18 +47,17 @@ data = {
 }
 df = pd.DataFrame(data)
 
-# Generate month-year labels starting from March 2025
+# Hardcoded Month Labels (Starting from March 2025)
 start_year = 2025
 start_month = 3
-month_labels = [
-    f"{calendar.month_abbr[(start_month + i - 1) % 12 + 1]} {start_year + (start_month + i - 1) // 12}"
-    for i in range((weeks // 4) + 1)
-]
+months = [
+    f"{month_abbr} {start_year + (start_month + i - 1) // 12}"
+    for i, month_abbr in enumerate(["Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec", "Jan", "Feb"] * (weeks // 52 + 1))
+][:weeks // 4]
 
-# Adjust the DataFrame to include month labels
-df["Month"] = pd.cut(df["Week"], bins=np.arange(0, weeks + 4, 4), labels=month_labels[:-1], right=False)
+# Aggregate data into months
+df["Month"] = months[:len(df) // 4 * 4:4]  # Trim and repeat for every 4 weeks
 
-# Group data by month for better visualization
 monthly_data = df.groupby("Month").agg({
     "Weekly Revenue ($)": "sum",
     "Cumulative Revenue ($)": "max"
@@ -76,7 +74,8 @@ ax.plot(monthly_data["Month"], monthly_data["Cumulative Revenue ($)"], label="Cu
 ax.bar(monthly_data["Month"], monthly_data["Weekly Revenue ($)"], alpha=0.5, label="Monthly Revenue")
 ax.set_xlabel("Month")
 ax.set_ylabel("Revenue ($)")
-ax.set_xticklabels(monthly_data["Month"], rotation=90, ha="right")
+ax.set_xticks(range(len(monthly_data["Month"])))
+ax.set_xticklabels(monthly_data["Month"], rotation=45, ha="right")
 ax.legend()
 st.pyplot(fig)
 
