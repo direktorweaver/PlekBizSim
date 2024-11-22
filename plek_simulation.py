@@ -2,18 +2,8 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-import calendar
-
-# Set page configuration
-st.set_page_config(
-    page_title="Plek Machine Revenue Simulation",
-    layout="wide"  # Expand the layout to use the full width of the screen
-)
-
-# Title and description
+# Title
 st.title("Plek Machine Revenue Simulation")
-st.markdown("An interactive simulation to estimate revenue for your Plek machine business.")
-
 # Input Sliders
 st.sidebar.header("Simulation Parameters")
 max_guitars = st.sidebar.slider("Max Guitars per Week", 1, 20, 9)
@@ -21,24 +11,20 @@ ramp_up_months = st.sidebar.slider("Ramp-Up Period (Months)", 12, 60, 42)
 price_per_guitar = st.sidebar.slider("Price per Guitar ($)", 100, 500, 175)
 variability = st.sidebar.slider("Variability (%)", 0, 100, 75)
 timeframe_years = st.sidebar.slider("Simulation Timeframe (Years)", 1, 10, 5)
-
 # Simulation Logic
 weeks = timeframe_years * 52
 ramp_up_weeks = ramp_up_months * 4
 gradual_ramp_up = np.linspace(0, max_guitars, ramp_up_weeks).round().astype(int)
 steady_state = [max_guitars] * (weeks - ramp_up_weeks)
 guitars_per_week = list(gradual_ramp_up) + steady_state
-
 # Introduce variability
 randomized_guitars_per_week = [
     max(0, min(max_guitars, int(g * np.random.uniform(1 - variability / 100, 1 + variability / 100))))
     for g in guitars_per_week
 ]
-
 # Calculate weekly and cumulative revenue
 weekly_revenue = [g * price_per_guitar for g in randomized_guitars_per_week]
 cumulative_revenue = np.cumsum(weekly_revenue)
-
 # Create DataFrame for Visualization
 data = {
     "Week": list(range(1, weeks + 1)),
@@ -47,39 +33,18 @@ data = {
     "Cumulative Revenue ($)": cumulative_revenue,
 }
 df = pd.DataFrame(data)
-
-# Hardcoded Month Labels (Starting from March 2025)
-start_year = 2025
-start_month = 3
-months = [
-    f"{month_abbr} {start_year + (start_month + i - 1) // 12}"
-    for i, month_abbr in enumerate(["Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec", "Jan", "Feb"] * (weeks // 52 + 1))
-][:weeks // 4]
-
-# Aggregate data into months
-df["Month"] = months[:len(df) // 4 * 4:4]  # Trim and repeat for every 4 weeks
-
-monthly_data = df.groupby("Month", observed=False).agg({  # Explicitly set observed=False
-    "Weekly Revenue ($)": "sum",
-    "Cumulative Revenue ($)": "max"
-}).reset_index()
-
 # Display Results
 st.write("### Weekly Revenue Table")
 st.dataframe(df)
-
-# Plot Revenue Chart
-st.write("### Revenue Over Time (Monthly)")
-fig, ax = plt.subplots(figsize=(16, 8))  # Set the chart width and height
-ax.plot(monthly_data["Month"], monthly_data["Cumulative Revenue ($)"], label="Cumulative Revenue", marker='o')
-ax.bar(monthly_data["Month"], monthly_data["Weekly Revenue ($)"], alpha=0.5, label="Monthly Revenue")
-ax.set_xlabel("Month")
+# Plot Charts
+st.write("### Revenue Over Time")
+fig, ax = plt.subplots()
+ax.plot(df["Week"], df["Cumulative Revenue ($)"], label="Cumulative Revenue")
+ax.bar(df["Week"], df["Weekly Revenue ($)"], alpha=0.5, label="Weekly Revenue")
+ax.set_xlabel("Week")
 ax.set_ylabel("Revenue ($)")
-ax.set_xticks(range(len(monthly_data["Month"])))
-ax.set_xticklabels(monthly_data["Month"], rotation=45, ha="right")
 ax.legend()
 st.pyplot(fig)
-
 # Summary Metrics
 total_revenue = cumulative_revenue[-1]
 avg_weekly_revenue = np.mean(weekly_revenue)
