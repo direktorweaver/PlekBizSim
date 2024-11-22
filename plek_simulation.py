@@ -1,15 +1,18 @@
-st.set_page_config(
-    page_title="Plek Machine Simulation",
-    layout="wide"  # Expands the app width to full-screen
-)
-
 import streamlit as st
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import calendar
 
-# Title
+# Set page configuration
+st.set_page_config(
+    page_title="Plek Machine Revenue Simulation",
+    layout="wide"  # Expand the layout to use the full width of the screen
+)
+
+# Title and description
 st.title("Plek Machine Revenue Simulation")
+st.markdown("An interactive simulation to estimate revenue for your Plek machine business.")
 
 # Input Sliders
 st.sidebar.header("Simulation Parameters")
@@ -45,13 +48,6 @@ data = {
 }
 df = pd.DataFrame(data)
 
-# Display Results
-st.write("### Weekly Revenue Table")
-st.dataframe(df)
-
-# Plot Charts
-import calendar
-
 # Generate month-year labels starting from March 2025
 start_year = 2025
 start_month = 3
@@ -69,9 +65,13 @@ monthly_data = df.groupby("Month").agg({
     "Cumulative Revenue ($)": "max"
 }).reset_index()
 
-# Update the chart with month labels
+# Display Results
+st.write("### Weekly Revenue Table")
+st.dataframe(df)
+
+# Plot Revenue Chart
 st.write("### Revenue Over Time (Monthly)")
-fig, ax = plt.subplots()
+fig, ax = plt.subplots(figsize=(16, 8))  # Set the chart width and height
 ax.plot(monthly_data["Month"], monthly_data["Cumulative Revenue ($)"], label="Cumulative Revenue", marker='o')
 ax.bar(monthly_data["Month"], monthly_data["Weekly Revenue ($)"], alpha=0.5, label="Monthly Revenue")
 ax.set_xlabel("Month")
