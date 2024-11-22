@@ -3,7 +3,6 @@ st.set_page_config(
     layout="wide"  # Expands the app width to full-screen
 )
 
-
 import streamlit as st
 import pandas as pd
 import numpy as np
