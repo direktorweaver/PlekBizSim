@@ -76,7 +76,7 @@ ax.plot(monthly_data["Month"], monthly_data["Cumulative Revenue ($)"], label="Cu
 ax.bar(monthly_data["Month"], monthly_data["Weekly Revenue ($)"], alpha=0.5, label="Monthly Revenue")
 ax.set_xlabel("Month")
 ax.set_ylabel("Revenue ($)")
-ax.set_xticklabels(monthly_data["Month"], rotation=45, ha="right")
+ax.set_xticklabels(monthly_data["Month"], rotation=90, ha="right")
 ax.legend()
 st.pyplot(fig)
 
