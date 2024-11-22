@@ -45,12 +45,33 @@ st.write("### Weekly Revenue Table")
 st.dataframe(df)
 
 # Plot Charts
-st.write("### Revenue Over Time")
+import calendar
+
+# Generate month-year labels starting from March 2025
+start_year = 2025
+start_month = 3
+month_labels = [
+    f"{calendar.month_abbr[(start_month + i - 1) % 12 + 1]} {start_year + (start_month + i - 1) // 12}"
+    for i in range((weeks // 4) + 1)
+]
+
+# Adjust the DataFrame to include month labels
+df["Month"] = pd.cut(df["Week"], bins=np.arange(0, weeks + 4, 4), labels=month_labels[:-1], right=False)
+
+# Group data by month for better visualization
+monthly_data = df.groupby("Month").agg({
+    "Weekly Revenue ($)": "sum",
+    "Cumulative Revenue ($)": "max"
+}).reset_index()
+
+# Update the chart with month labels
+st.write("### Revenue Over Time (Monthly)")
 fig, ax = plt.subplots()
-ax.plot(df["Week"], df["Cumulative Revenue ($)"], label="Cumulative Revenue")
-ax.bar(df["Week"], df["Weekly Revenue ($)"], alpha=0.5, label="Weekly Revenue")
-ax.set_xlabel("Week")
+ax.plot(monthly_data["Month"], monthly_data["Cumulative Revenue ($)"], label="Cumulative Revenue", marker='o')
+ax.bar(monthly_data["Month"], monthly_data["Weekly Revenue ($)"], alpha=0.5, label="Monthly Revenue")
+ax.set_xlabel("Month")
 ax.set_ylabel("Revenue ($)")
+ax.set_xticklabels(monthly_data["Month"], rotation=45, ha="right")
 ax.legend()
 st.pyplot(fig)
 
