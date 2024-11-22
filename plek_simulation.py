@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import calendar
 
 # Set page configuration
 st.set_page_config(
@@ -58,7 +59,7 @@ months = [
 # Aggregate data into months
 df["Month"] = months[:len(df) // 4 * 4:4]  # Trim and repeat for every 4 weeks
 
-monthly_data = df.groupby("Month").agg({
+monthly_data = df.groupby("Month", observed=False).agg({  # Explicitly set observed=False
     "Weekly Revenue ($)": "sum",
     "Cumulative Revenue ($)": "max"
 }).reset_index()
