@@ -1,1 +1,2 @@
-numpy pandas streamlit
+pandas 
+streamlit
