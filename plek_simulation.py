@@ -1,3 +1,8 @@
+st.set_page_config(
+    page_title="Plek Machine Simulation",
+    layout="wide"  # Expands the app width to full-screen
+)
+
 import streamlit as st
 import pandas as pd
 import numpy as np
