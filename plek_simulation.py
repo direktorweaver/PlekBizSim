@@ -6,6 +6,11 @@ import matplotlib.pyplot as plt
 # Title
 st.title("Plek Machine Revenue Simulation")
 
+st.set_page_config(
+    page_title="Plek Machine Simulation",
+    layout="wide"  # Expands the app width to full-screen
+)
+
 # Input Sliders
 st.sidebar.header("Simulation Parameters")
 max_guitars = st.sidebar.slider("Max Guitars per Week", 1, 20, 9)
